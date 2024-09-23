@@ -3,17 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arsip</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <title>secret</title>
+    <!-- Firebase Configuration -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-auth.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        #uploadForm {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #uploadForm input {
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Upload File</h1>
-    <input type="file" id="fileInput" accept="image/*">
-    <button id="uploadButton">Upload</button>
-    <p id="status"></p>
 
-    <script src="script.js"></script>
+    <h1>Upload file</h1>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" accept="image/*" />
+        <button type="button" onclick="uploadImage()">Upload Image</button>
+    </form>
+    
+    <div id="uploadStatus"></div>
+
+    <script>
+        // Firebase configuration (replace with your Firebase config)
+        const firebaseConfig = {
+    apiKey: "AIzaSyCbOfymSS1lKeppjgZnTX0zo3ypdsKGzFg",
+    authDomain: "latihan-f29f3.firebaseapp.com",
+    projectId: "latihan-f29f3",
+    storageBucket: "latihan-f29f3.appspot.com",
+    messagingSenderId: "13390951155",
+    appId: "1:13390951155:web:ec76cd78add161d119bd86",
+    measurementId: "G-5VL4793DPR"
+  };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+
+        function uploadImage() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const storageRef = storage.ref('images/' + file.name);
+                const uploadTask = storageRef.put(file);
+
+                // Upload in progress
+                uploadTask.on('state_changed',
+                    function(snapshot) {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        document.getElementById('uploadStatus').innerText = 'Upload is ' + progress + '% done';
+                    },
+                    function(error) {
+                        document.getElementById('uploadStatus').innerText = 'Upload failed: ' + error.message;
+                    },
+                    function() {
+                        uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                            document.getElementById('uploadStatus').innerHTML = 'Upload successful! <a href="' + downloadURL + '" target="_blank">View Image</a>';
+                        });
+                    }
+                );
+            } else {
+                document.getElementById('uploadStatus').innerText = 'No file selected!';
+            }
+        }
+    </script>
 </body>
 </html>
